@@ -4,7 +4,7 @@
 # Usage: ./run_inventory.sh
 
 BUCKET="terraform-aws1234"
-OUTPUT_NAME="aws_inventory"
+OUTPUT_NAME="aws_inventory-output"
 
 echo "=== AWS Resource Inventory Script ==="
 echo "Timestamp: $(date)"
