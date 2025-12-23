@@ -1,0 +1,41 @@
+# This is an example Starter pipeline configuration
+# Use a skeleton to build, test and deploy using manual and parallel steps
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+
+image: atlassian/default-image:3
+
+pipelines:
+  default:
+    - step:
+        name: AWS Inventory Generation
+        runs-on:
+          - self.hosted
+          - linux.shell
+        script:
+          # 1. Setup: Define a unique folder for this build to prevent conflicts
+          - export WORK_DIR="/tmp/aws-inventory-$BITBUCKET_BUILD_NUMBER"
+          - echo "Setting up workspace at $WORK_DIR"
+          - mkdir -p $WORK_DIR
+
+          # 2. Copy the 4 specific files from Repo to Runner
+          - cp install_packages.sh run_inventory.sh aws_inventory.py requirements.txt $WORK_DIR/
+          - cd $WORK_DIR
+
+          # 3. Permissions: Make the scripts executable
+          - chmod +x install_packages.sh run_inventory.sh aws_inventory.py
+
+          # 4. Execution Part 1: Install Dependencies
+          # Note: Your script uses 'sudo', ensure runner user has passwordless sudo access
+          - ./install_packages.sh
+
+          # 5. Execution Part 2: Run the Inventory Logic
+          # This script calls aws_inventory.py and uploads to S3
+          - ./run_inventory.sh
+
+          # 6. Cleanup: Remove the temporary folder
+          - cd ..
+          - rm -rf $WORK_DIR
+          - echo "Cleanup complete."
+
+          
